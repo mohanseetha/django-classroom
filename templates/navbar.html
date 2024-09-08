@@ -1,0 +1,24 @@
+{% block content %}
+
+<nav class="navbar">
+  {% if request.user.is_authenticated %}
+  <p><a href="{%url 'home'%}">Hi, {{request.user}}</a></p>
+  {% else %}
+  <p><a href="{%url 'home'%}">Hello</a></p>
+  {% endif %}
+
+  <div class="search">
+    <p><a href="{% url 'create-room' %}">Create Room</a></p>
+    <form method="GET" action="{% url 'home' %}">
+      <input type="text" name="q" placeholder="search" />
+    </form>
+    {% if request.user.is_authenticated %}
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+    <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif%}
+  </div>
+</nav>
+<hr />
+
+{% endblock%}

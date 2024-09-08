@@ -1,0 +1,11 @@
+{% extends "main.html" %} {%block content%}
+
+<div class="home-container">
+  <div>
+    <h3>{{room_count}} rooms available</h3>
+    {% include 'topics.html' %}
+  </div>
+  <div>{%include 'feed.html'%}</div>
+  <div>{% include 'activity.html' %}</div>
+</div>
+{%endblock%}

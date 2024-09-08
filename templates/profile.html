@@ -1,0 +1,9 @@
+{% extends "main.html" %} {% block content %}
+
+<h1>{{user.username}}</h1>
+<div class="profile">
+  <div>{% include "topics.html" %}</div>
+  <div>{% include "feed.html" %}</div>
+  <div>{% include "activity.html" %}</div>
+</div>
+{% endblock content %}
