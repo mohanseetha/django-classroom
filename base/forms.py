@@ -4,9 +4,13 @@ from .models import Room, User
 
 
 class MyUserCreationForm(UserCreationForm):
+    usable_password = None
     class Meta:
         model = User
-        fields = ['name', 'username', 'email', 'password1', 'password2']
+        fields = ['name', 'username', 'branch', 'year']
+    
+    def is_valid(self) -> bool:
+        return super().is_valid()
 
 class RoomForm(ModelForm):
     class Meta:

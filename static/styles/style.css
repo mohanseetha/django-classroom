@@ -1,18 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
 
 :root {
-  --color-main: #db7093; /* PaleVioletRed */
-  --color-main-light: #f7c6d3; /* Light PaleVioletRed */
-  --color-dark: #4a4a4a; /* Dark Gray for text */
-  --color-dark-medium: #6e6e6e; /* Medium Gray for secondary text */
-  --color-dark-light: #9a9a9a; /* Light Gray for subtle contrasts */
-  --color-light: #ffffff; /* Pure White for background */
-  --color-gray: #b0b0b0; /* Neutral Gray */
-  --color-light-gray: #d3d3d3; /* Light Gray for borders or backgrounds */
-  --color-bg: #f5f5f5; /* Light Background */
-  --color-success: #8bc34a; /* Soft Green for success */
-  --color-error: #f44336; /* Light Red for errors */
+  --color-main: #4682b4; /* Steel Blue */
+  --color-main-light: #add8e6; /* Light Blue */
+  --color-dark: #002f6c; /* Dark Blue */
+  --color-dark-medium: #5b7cbf; /* Medium Blue */
+  --color-dark-light: #000; /* White */
+  --color-light: #fff; /* Black */
+  --color-gray: #9eaecc; /* Muted Bluish Gray */
+  --color-light-gray: #000; /* Light Steel Blue */
+  --color-bg: #e0f7fa; /* Very Light Blue Background */
+  --color-success: #4caf50; /* Medium Green for success */
+  --color-error: #a89494; /* Light Red for errors */
 }
+
 /*========== base styles ==========*/
 
 * {

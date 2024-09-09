@@ -132,7 +132,6 @@ def logoutUser(request):
 
 def registerUser(request):
     form = MyUserCreationForm()
-
     if request.method == 'POST':
         form = MyUserCreationForm(request.POST)
         if form.is_valid():
@@ -164,9 +163,9 @@ def deleteMsg(request, pk):
 @login_required(login_url='login')
 def editUser(request):
     user = request.user
-    form = UserForm(instance=user)
+    form = MyUserCreationForm(instance=user)
     if request.method == "POST":
-        form = UserForm(request.POST, instance=user)
+        form = MyUserCreationForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
             return redirect('user-profile', user.id)
