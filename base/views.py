@@ -5,22 +5,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Room, Topic, Message
-from .forms import RoomForm
+from .models import Room, Topic, Message, User
+from .forms import RoomForm, UserForm, MyUserCreationForm
 
-"""rooms = [
-    {'id': 1, 'name': 'NLP'},
-    {'id': 2, 'name': 'Operating Systems'},
-    {'id': 3, 'name': 'Compiler Design'},
-    {'id': 4, 'name': 'Computer Networks'},
-    {'id': 5, 'name': 'Robotics'},
-] """
-
+@login_required(login_url='login')
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     rooms = Room.objects.filter(
-        Q(topic__name__icontains=q) | Q(name__icontains=q) | Q(host__username__icontains=q) | Q(desc__icontains=q))
+        Q(topic__name__icontains=q) | Q(name__icontains=q) | Q(host__username__icontains=q) | Q(desc__icontains=q)) 
+    rooms = rooms.filter(
+        Q(branch__name=request.user.branch) & Q(year__yos=request.user.year) | Q(host__name=request.user.name)
+    )
     topics = Topic.objects.all()
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
@@ -28,6 +23,7 @@ def home(request):
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'room_messages': room_messages}
     return render(request, 'home.html', context)
 
+@login_required(login_url='login')
 def room(request, pk):
     room = Room.objects.get(id=pk)  
     room_messages = room.message_set.all()
@@ -39,15 +35,20 @@ def room(request, pk):
             room = room,
             body = request.POST.get('body')
         )
+        user = request.user
         room.followers.add(request.user)
         return redirect('room', pk=room.id)
 
     context = {'room': room, 'room_messages': room_messages, 'followers': followers}
     return render(request, 'room.html', context)
 
+@login_required(login_url='login')
 def userProfile(request, pk):
     user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
+    rooms = user.room_set.get
+    rooms = Room.objects.filter(
+        Q(branch__name=request.user.branch) & Q(year__yos=request.user.year)
+    )
     room_messages = user.message_set.all()
     topics = Topic.objects.all()
     context = {'user': user, 'rooms': rooms, 'room_messages': room_messages, 'topics': topics}
@@ -55,6 +56,7 @@ def userProfile(request, pk):
 
 @login_required(login_url='login')
 def createRoom(request):
+    topics = Topic.objects.all()
     form = RoomForm()
     if request.method == "POST":
         form = RoomForm(request.POST)
@@ -64,7 +66,7 @@ def createRoom(request):
             room.save()
             return redirect('home')
 
-    context = {'form': form}
+    context = {'form': form, 'topics': topics}
     return render(request, 'room_form.html', context)
 
 @login_required(login_url='login')
@@ -103,13 +105,15 @@ def loginUser(request):
         return redirect('home')
 
     if request.method == "POST":
-        username = request.POST.get('username').lower()
+        username = request.POST.get('username')
         password = request.POST.get('password')
         try:
-            user = User.objects.get(username)
+            user = User.objects.get(username=username)
+            user.set_password(password)
         except:
             messages.error(request, 'User doesn\'t exist')
     
+        
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -121,25 +125,27 @@ def loginUser(request):
     context = {'page': page}
     return render(request, 'login.html', context)
 
+@login_required(login_url='login')
 def logoutUser(request):
     logout(request)
     return redirect('home')
 
 def registerUser(request):
-    form = UserCreationForm()
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
+    form = MyUserCreationForm()
+
+    if request.method == 'POST':
+        form = MyUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
+            user.username = user.username
             user.save()
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Registration Failed')
-    
-    context = {'form': form}
-    return render(request, 'login.html', context)
+            messages.error(request, 'An error occurred during registration')
+
+    return render(request, 'login.html', {'form': form})
+
     
 @login_required(login_url='login')
 def deleteMsg(request, pk):
@@ -157,5 +163,25 @@ def deleteMsg(request, pk):
 
 @login_required(login_url='login')
 def editUser(request):
-    context = {}
+    user = request.user
+    form = UserForm(instance=user)
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile', user.id)
+        
+    context = {'form': form}
     return render(request, 'edit_user.html', context)
+
+@login_required(login_url='login')
+def topicsPage(request):
+    topics = Topic.objects.all()
+    context = {'topics': topics}
+    return render(request, 'all_topics.html', context)
+
+@login_required(login_url='login')
+def activityPage(request):
+    room_messages = Message.objects.all()
+    context = {'room_messages': room_messages}
+    return render(request, 'all_activity.html', context)
